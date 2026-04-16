@@ -1,0 +1,337 @@
+name: mcfunction Lint
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '**/*.mcfunction'
+      - '**/*.json'
+      - '.github/workflows/mcfunction-lint.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '**/*.mcfunction'
+
+jobs:
+  # ─────────────────────────────────────────────
+  # 1. CRLF Line Ending Detection
+  # ─────────────────────────────────────────────
+  lint-crlf:
+    name: CRLF Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Detect CRLF line endings in .mcfunction files
+        run: |
+          FAILED=0
+          while IFS= read -r f; do
+            if file "$f" | grep -q "CRLF"; then
+              echo "FAIL [CRLF]: $f"
+              FAILED=1
+            fi
+          done < <(find data _pre_1_21_4 compat_1_21_4 1_20_3 1_21_4 1_21_5 1_21_6 26_1 -name "*.mcfunction" 2>/dev/null)
+          if [ $FAILED -ne 0 ]; then
+            echo ""
+            echo "Fix: git config core.autocrlf false && dos2unix <file>"
+            exit 1
+          fi
+          echo "PASSED: No CRLF line endings found."
+
+  # ─────────────────────────────────────────────
+  # 2. Macro Line Prefix Check
+  # ─────────────────────────────────────────────
+  lint-macro-prefix:
+    name: Macro Line Prefix
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Check macro variable lines start with $
+        run: |
+          FAILED=0
+          while IFS= read -r f; do
+            lineno=0
+            while IFS= read -r line; do
+              lineno=$((lineno + 1))
+              stripped=$(echo "$line" | sed 's/^[[:space:]]*//')
+              [[ "$stripped" == "#"* || -z "$stripped" ]] && continue
+              if echo "$line" | grep -qP '\$\([a-zA-Z_][a-zA-Z0-9_]*\)'; then
+                if ! echo "$line" | grep -qP '^\s*\$'; then
+                  echo "FAIL [macro-prefix] $f:$lineno: "'$(var)'" used on non-macro line"
+                  echo " > $line"
+                  FAILED=1
+                fi
+              fi
+            done < "$f"
+          done < <(find data _pre_1_21_4 compat_1_21_4 1_20_3 1_21_4 1_21_5 1_21_6 26_1 -name "*.mcfunction" 2>/dev/null)
+          [ $FAILED -ne 0 ] && exit 1 || echo "PASSED: All macro variables on correct lines."
+
+  # ─────────────────────────────────────────────
+  # 3. INPUT Comment Coverage
+  # ─────────────────────────────────────────────
+  lint-input-comment:
+    name: INPUT Comment Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Check INPUT comment presence where macros are used
+        run: |
+          WARN=0
+          while IFS= read -r f; do
+            has_macro=$(grep -cP '^\$' "$f") || has_macro=0
+            has_input=$(grep -cP '^# INPUT:' "$f") || has_input=0
+            if [ "${has_macro:-0}" -gt 0 ] && [ "${has_input:-0}" -eq 0 ]; then
+              echo "WARN [no-input-comment]: $f"
+              WARN=$((WARN + 1))
+            fi
+          done < <(find data _pre_1_21_4 compat_1_21_4 1_20_3 1_21_4 1_21_5 1_21_6 26_1 -name "*.mcfunction" 2>/dev/null)
+          if [ $WARN -gt 0 ]; then
+            echo ""
+            echo "WARN: $WARN file(s) use macro variables but have no '# INPUT:' comment."
+          else
+            echo "PASSED: All macro files have INPUT comments."
+          fi
+
+  # ─────────────────────────────────────────────
+  # 4. @p Selector Usage
+  # ─────────────────────────────────────────────
+  lint-at-p:
+    name: "@p Selector Check"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Warn on @p usage
+        run: |
+          FOUND=0
+          while IFS= read -r f; do
+            lineno=0
+            while IFS= read -r line; do
+              lineno=$((lineno + 1))
+              stripped=$(echo "$line" | sed 's/^[[:space:]]*//')
+              [[ "$stripped" == "#"* || -z "$stripped" ]] && continue
+              if echo "$line" | grep -qP '@p\b'; then
+                echo "WARN [@p]: $f:$lineno"
+                echo " > $line"
+                FOUND=$((FOUND + 1))
+              fi
+            done < "$f"
+          done < <(find data _pre_1_21_4 compat_1_21_4 1_20_3 1_21_4 1_21_5 1_21_6 26_1 -name "*.mcfunction" 2>/dev/null)
+          if [ $FOUND -gt 0 ]; then
+            echo ""
+            echo "WARN: $FOUND @p occurrence(s). Prefer @a[name=\$(player),limit=1]."
+          else
+            echo "PASSED: No @p usage found."
+          fi
+
+  # ─────────────────────────────────────────────
+  # 5. Trailing Whitespace
+  # ─────────────────────────────────────────────
+  lint-trailing-whitespace:
+    name: Trailing Whitespace
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Detect trailing whitespace in .mcfunction files
+        run: |
+          FOUND=0
+          while IFS= read -r f; do
+            count=$(grep -cP '\s+$' "$f") || count=0
+            if [ "${count:-0}" -gt 0 ]; then
+              echo "WARN [trailing-ws]: $f ($count line(s))"
+              FOUND=$((FOUND + count))
+            fi
+          done < <(find data _pre_1_21_4 compat_1_21_4 1_20_3 1_21_4 1_21_5 1_21_6 26_1 -name "*.mcfunction" 2>/dev/null)
+          [ $FOUND -gt 0 ] && echo "WARN: $FOUND total trailing whitespace line(s)." || echo "PASSED: No trailing whitespace found."
+
+  # ─────────────────────────────────────────────
+  # 6. JSON Validation
+  # ─────────────────────────────────────────────
+  lint-json:
+    name: JSON Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Validate JSON files
+        run: |
+          FAILED=0
+          while IFS= read -r f; do
+            if ! jq empty "$f" 2>/dev/null; then
+              echo "FAIL [json]: $f"
+              FAILED=1
+            fi
+          done < <(find data _pre_1_21_4 compat_1_21_4 1_20_3 1_21_4 1_21_5 1_21_6 26_1 -name "*.json" 2>/dev/null)
+          [ $FAILED -ne 0 ] && exit 1 || echo "PASSED: All JSON files are valid."
+
+  # ─────────────────────────────────────────────
+  # 7. Deprecated Text Components
+  # ─────────────────────────────────────────────
+  lint-deprecated-text:
+    name: Deprecated Text Components
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Check for old tellraw/title usage
+        run: |
+          FOUND=0
+          while IFS= read -r f; do
+            lineno=0
+            while IFS= read -r line; do
+              lineno=$((lineno + 1))
+              if echo "$line" | grep -qP '(tellraw|title|subtitle).*(\{.*text.*\}|\[.*text.*\])'; then
+                echo "WARN [old-text]: $f:$lineno"
+                echo " > $line"
+                FOUND=$((FOUND + 1))
+              fi
+            done < "$f"
+          done < <(find data _pre_1_21_4 compat_1_21_4 1_20_3 1_21_4 1_21_5 1_21_6 26_1 -name "*.mcfunction" 2>/dev/null)
+          [ $FOUND -gt 0 ] && echo "WARN: $FOUND old text component usage(s) found." || echo "PASSED: No deprecated text components."
+
+  # ─────────────────────────────────────────────
+  # 8. Hardcoded Player Names
+  # ─────────────────────────────────────────────
+  lint-hardcoded-names:
+    name: Hardcoded Player Names
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Detect hardcoded player names
+        run: |
+          FOUND=0
+          while IFS= read -r f; do
+            if grep -qP '@[aeprs]\[.*name=[^$\s]' "$f"; then
+              echo "WARN [hardcoded-name]: $f"
+              grep -nP '@[aeprs]\[.*name=[^$\s]' "$f"
+              FOUND=1
+            fi
+          done < <(find data _pre_1_21_4 compat_1_21_4 1_20_3 1_21_4 1_21_5 1_21_6 26_1 -name "*.mcfunction" 2>/dev/null)
+          [ $FOUND -ne 0 ] && echo "WARN: Hardcoded player names detected." || echo "PASSED: No hardcoded player names."
+
+  # ─────────────────────────────────────────────
+  # 9. Execute As/At Order
+  # ─────────────────────────────────────────────
+  lint-execute-order:
+    name: Execute As/At Order
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Check execute order (as before at)
+        run: |
+          FOUND=0
+          while IFS= read -r f; do
+            if grep -qP 'execute (as .*? )?at .*? as' "$f"; then
+              echo "WARN [execute-order]: $f"
+              grep -nP 'execute .*?at .*? as' "$f"
+              FOUND=1
+            fi
+          done < <(find data _pre_1_21_4 compat_1_21_4 1_20_3 1_21_4 1_21_5 1_21_6 26_1 -name "*.mcfunction" 2>/dev/null)
+          [ $FOUND -ne 0 ] && echo "WARN: Some execute commands have suboptimal 'as/at' order." || echo "PASSED: Execute order looks good."
+
+  # ─────────────────────────────────────────────
+  # 10. Scoreboard Objective Naming Convention
+  # ─────────────────────────────────────────────
+  lint-scoreboard-naming:
+    name: Scoreboard Naming Convention
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Check scoreboard objective names
+        run: |
+          FAILED=0
+          while IFS= read -r f; do
+            lineno=0
+            while IFS= read -r line; do
+              lineno=$((lineno + 1))
+              if echo "$line" | grep -qP '(scoreboard objectives add|scoreboard players set|scoreboard players add|scoreboard players remove|scoreboard players reset)'; then
+                if ! echo "$line" | grep -qP '\b[a-z_]+(\.[a-z_][a-z0-9_]*)*\b'; then
+                  echo "WARN [scoreboard-name]: $f:$lineno → Use snake_case with namespace prefix"
+                  echo " > $line"
+                  FAILED=1
+                fi
+              fi
+            done < "$f"
+          done < <(find data _pre_1_21_4 compat_1_21_4 1_20_3 1_21_4 1_21_5 1_21_6 26_1 -name "*.mcfunction" 2>/dev/null)
+          [ $FAILED -ne 0 ] && echo "WARN: Some scoreboard objectives don't follow naming convention." || echo "PASSED: Scoreboard naming looks good."
+
+  # ─────────────────────────────────────────────
+  # 11. Function Path & Namespace Check
+  # ─────────────────────────────────────────────
+  lint-function-path:
+    name: Function Path Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Check function calls have correct namespace
+        run: |
+          FOUND=0
+          while IFS= read -r f; do
+            if grep -qP 'function (?!#)[^: ]+:' "$f"; then
+              echo "WARN [function-path]: $f contains calls without namespace"
+              grep -nP 'function (?!#)[^: ]+:' "$f"
+              FOUND=1
+            fi
+          done < <(find data _pre_1_21_4 compat_1_21_4 1_20_3 1_21_4 1_21_5 1_21_6 26_1 -name "*.mcfunction" 2>/dev/null)
+          [ $FOUND -ne 0 ] && echo "WARN: Some function calls missing namespace." || echo "PASSED: All function calls have namespace."
+
+  # ─────────────────────────────────────────────
+  # 12. Long Function Warning
+  # ─────────────────────────────────────────────
+  lint-function-length:
+    name: Function Length Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Warn on very long functions
+        run: |
+          FOUND=0
+          while IFS= read -r f; do
+            lines=$(wc -l < "$f")
+            if [ "$lines" -gt 150 ]; then
+              echo "WARN [long-function]: $f ($lines lines) → Consider splitting"
+              FOUND=1
+            fi
+          done < <(find data _pre_1_21_4 compat_1_21_4 1_20_3 1_21_4 1_21_5 1_21_6 26_1 -name "*.mcfunction" 2>/dev/null)
+          [ $FOUND -eq 0 ] && echo "PASSED: No excessively long functions." || echo "WARN: Some functions are very long."
+
+  # ─────────────────────────────────────────────
+  # 13. load.json & tick.json Check
+  # ─────────────────────────────────────────────
+  lint-load-tick:
+    name: load.json & tick.json Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Check load and tick tags
+        run: |
+          if [ ! -f "data/minecraft/tags/function/load.json" ] && [ ! -f "data/minecraft/tags/functions/load.json" ]; then
+            echo "WARN [missing-tag]: load.json not found!"
+          else
+            echo "PASSED: load.json exists."
+          fi
+          if [ ! -f "data/minecraft/tags/function/tick.json" ] && [ ! -f "data/minecraft/tags/functions/tick.json" ]; then
+            echo "WARN [missing-tag]: tick.json not found!"
+          else
+            echo "PASSED: tick.json exists."
+          fi
+
+  # ─────────────────────────────────────────────
+  # 14. Dangerous Commands Check
+  # ─────────────────────────────────────────────
+  lint-dangerous-commands:
+    name: Dangerous Commands
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Detect dangerous commands
+        run: |
+          FOUND=0
+          DANGEROUS="kill @e|data remove|fill .* air|setblock .* air|particle .* ~ ~ ~ .* 10000"
+          while IFS= read -r f; do
+            if grep -qP "$DANGEROUS" "$f"; then
+              echo "WARN [dangerous-cmd]: $f"
+              grep -nP "$DANGEROUS" "$f"
+              FOUND=1
+            fi
+          done < <(find data _pre_1_21_4 compat_1_21_4 1_20_3 1_21_4 1_21_5 1_21_6 26_1 -name "*.mcfunction" 2>/dev/null)
+          [ $FOUND -eq 0 ] && echo "PASSED: No dangerous commands found." || echo "WARN: Dangerous commands detected (review needed)."

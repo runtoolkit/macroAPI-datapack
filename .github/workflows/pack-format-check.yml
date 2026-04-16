@@ -1,0 +1,107 @@
+name: Pack Format Consistency
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'pack.mcmeta'
+      - '.github/workflows/pack-format-check.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'pack.mcmeta'
+
+jobs:
+  pack-format-check:
+    name: Pack Format Consistency
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Check pack format values are consistent
+        run: |
+          FAILED=0
+
+          PACK_FORMAT=$(python3 -c "import json; m=json.load(open('pack.mcmeta')); print(m['pack']['pack_format'])")
+
+          # supported_formats ZORUNLU olarak object olmalı: {"min_inclusive":X,"max_inclusive":Y}
+          # Array [X,Y] syntax 1.21.10+ (pack_format 88+) sunucularında parse hatası verir — yasak
+          SF_TYPE=$(python3 -c "import json; m=json.load(open('pack.mcmeta')); sf=m['pack'].get('supported_formats'); print(type(sf).__name__)")
+
+          if [ "$SF_TYPE" = "list" ]; then
+            echo "FAIL: supported_formats array [X,Y] syntax kullanılmış."
+            echo "  1.21.10+ (pack_format 88+) sunucularında parse hatası verir."
+            echo "  Doğru format: {\"min_inclusive\": X, \"max_inclusive\": Y}"
+            exit 1
+          fi
+
+          SUP_MIN=$(python3 -c "import json; m=json.load(open('pack.mcmeta')); sf=m['pack'].get('supported_formats',{}); print(sf.get('min_inclusive',''))")
+          SUP_MAX=$(python3 -c "import json; m=json.load(open('pack.mcmeta')); sf=m['pack'].get('supported_formats',{}); print(sf.get('max_inclusive',''))")
+
+          echo "pack_format      : $PACK_FORMAT"
+          echo "supported_formats: {min_inclusive: $SUP_MIN, max_inclusive: $SUP_MAX}"
+
+          # pack_format, supported_formats aralığında olmalı
+          if [ -n "$SUP_MIN" ] && [ -n "$SUP_MAX" ]; then
+            if [ "$PACK_FORMAT" -lt "$SUP_MIN" ] || [ "$PACK_FORMAT" -gt "$SUP_MAX" ]; then
+              echo "FAIL: pack_format ($PACK_FORMAT) supported_formats [$SUP_MIN, $SUP_MAX] dışında"
+              FAILED=1
+            else
+              echo "OK: pack_format $PACK_FORMAT, supported_formats [$SUP_MIN, $SUP_MAX] içinde"
+            fi
+          fi
+
+          # 3. Overlay aralikları supported_formats ile ortusme kontrolu
+          echo ""
+          echo "Overlay format ranges:"
+          python3 << 'PYEOF'
+          import json, sys, os
+
+          with open('pack.mcmeta') as f:
+              meta = json.load(f)
+
+          failed = 0
+          sup = meta['pack'].get('supported_formats', {})
+          if isinstance(sup, list):
+              print("FAIL: supported_formats array syntax kullanılmış — object olmalı")
+              sys.exit(1)
+          sup_min = sup.get('min_inclusive', 0)
+          sup_max = sup.get('max_inclusive', 9999)
+
+          for entry in meta.get('overlays', {}).get('entries', []):
+              d   = entry['directory']
+              fmt = entry['formats']
+              if isinstance(fmt, dict):
+                  o_min = fmt.get('min_inclusive', 0)
+                  o_max = fmt.get('max_inclusive', 9999)
+              elif isinstance(fmt, list):
+                  print(f"  FAIL: overlay '{d}' formats array syntax kullanılmış — object olmalı")
+                  failed = 1
+                  continue
+              else:
+                  o_min = o_max = fmt
+
+              # min_format / max_format overlay entry içinde yok sayılır
+
+              overlap = o_min <= sup_max and o_max >= sup_min
+              status = "OK" if overlap else "FAIL"
+              if not overlap:
+                  failed = 1
+              print(f"  {status}: overlay '{d}' [{o_min}, {o_max}] "
+                    f"{'overlaps' if overlap else 'NO OVERLAP with'} supported_formats [{sup_min}, {sup_max}]")
+
+          sys.exit(failed)
+          PYEOF
+
+          PY_EXIT=$?
+          [ $PY_EXIT -ne 0 ] && FAILED=1
+
+          echo ""
+          if [ $FAILED -ne 0 ]; then
+            echo "FAILED: pack.mcmeta format values are inconsistent."
+            exit 1
+          fi
+          echo "PASSED: All pack format values are consistent."

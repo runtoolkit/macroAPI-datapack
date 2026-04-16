@@ -1,0 +1,119 @@
+name: pack.mcmeta Editor
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+# ─────────────────────────────────────────────────────────────────
+# pack.mcmeta içindeki pack_format, supported_formats ve overlay
+# formats değerlerini Actions arayüzünden doğrudan düzenler.
+# Değişikliği otomatik commit + push eder.
+#
+# Actions → "Run workflow" → alanları doldur → Run
+# ─────────────────────────────────────────────────────────────────
+
+on:
+  workflow_dispatch:
+    inputs:
+
+      pack_format:
+        description: 'pack_format (tamsayı — ör: 94)'
+        required: true
+        type: string
+
+      supported_min:
+        description: 'supported_formats min_inclusive (ör: 26)'
+        required: true
+        type: string
+
+      supported_max:
+        description: 'supported_formats max_inclusive (ör: 400000)'
+        required: true
+        type: string
+
+      overlay_updates:
+        description: |
+          Overlay formats güncelleme (isteğe bağlı).
+          Her satır: <directory>=<min>:<max>
+          Örn:
+            1_21_6=80:400000
+            26_1=101:101
+        required: false
+        type: string
+        default: ''
+
+      commit_message:
+        description: 'Commit mesajı (boş = otomatik)'
+        required: false
+        type: string
+        default: ''
+
+jobs:
+  edit-pack-mcmeta:
+    name: Edit pack.mcmeta
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Validate inputs
+        env:
+          PF: ${{ inputs.pack_format }}
+          SMIN: ${{ inputs.supported_min }}
+          SMAX: ${{ inputs.supported_max }}
+        run: |
+          if ! echo "$PF" | grep -qE '^[0-9]+$'; then
+            echo "FAIL: pack_format tamsayı olmalı, alınan: '$PF'"
+            exit 1
+          fi
+          if ! echo "$SMIN" | grep -qE '^[0-9]+$'; then
+            echo "FAIL: supported_min tamsayı olmalı, alınan: '$SMIN'"
+            exit 1
+          fi
+          if ! echo "$SMAX" | grep -qE '^[0-9]+$'; then
+            echo "FAIL: supported_max tamsayı olmalı, alınan: '$SMAX'"
+            exit 1
+          fi
+          if [ "$SMIN" -gt "$SMAX" ]; then
+            echo "FAIL: supported_min ($SMIN) > supported_max ($SMAX)"
+            exit 1
+          fi
+          if [ "$PF" -lt "$SMIN" ] || [ "$PF" -gt "$SMAX" ]; then
+            echo "FAIL: pack_format ($PF) supported_formats [$SMIN, $SMAX] dışında"
+            exit 1
+          fi
+          echo "OK: Girdiler geçerli."
+
+      - name: Apply changes to pack.mcmeta
+        env:
+          GITHUB_EVENT_PATH: ${{ github.event_path }}
+        run: |
+          python3 .github/scripts/edit_pack_mcmeta.py \
+            "${{ inputs.pack_format }}" \
+            "${{ inputs.supported_min }}" \
+            "${{ inputs.supported_max }}"
+
+      - name: Commit and push
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add pack.mcmeta
+
+          if git diff --cached --quiet; then
+            echo "Değişiklik yok, commit atlanıyor."
+            exit 0
+          fi
+
+          CUSTOM_MSG="${{ inputs.commit_message }}"
+          if [ -n "$CUSTOM_MSG" ]; then
+            MSG="$CUSTOM_MSG"
+          else
+            MSG="chore(pack): pack_format=${{ inputs.pack_format }}, supported=[${{ inputs.supported_min }}, ${{ inputs.supported_max }}]"
+          fi
+
+          git commit -m "$MSG"
+          git push

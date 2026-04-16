@@ -1,0 +1,125 @@
+name: Version Consistency
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+# ─────────────────────────────────────────────────────────────────
+# pack.mcmeta ↔ CHANGELOG.md ↔ validate.mcfunction ↔ version_set.mcfunction
+# arasındaki versiyon tutarlılığını kontrol eder.
+#
+# Kontrol edilen kaynaklar:
+#   1. docs/CHANGELOG.md       → en üstteki "## vX.Y.Z" başlığı
+#   2. data/.../validate.mcfunction → {version:"vX.Y.Z"} storage değeri
+#   3. data/.../version_set.mcfunction → #ame.major/minor/patch/pre skorları
+#
+# pack.mcmeta'da versiyon alanı yoktur — kontrol dışıdır.
+# ─────────────────────────────────────────────────────────────────
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'docs/CHANGELOG.md'
+      - 'data/**/validate.mcfunction'
+      - 'data/**/version_set.mcfunction'
+  push:
+    branches: [ main ]
+    paths:
+      - 'docs/CHANGELOG.md'
+      - 'data/**/validate.mcfunction'
+      - 'data/**/version_set.mcfunction'
+
+jobs:
+  version-consistency:
+    name: Version Consistency Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Extract and compare versions
+        run: |
+          FAILED=0
+
+          # ── 1. CHANGELOG — en üstteki ## vX.Y.Z başlığı ──────────────
+          CHANGELOG_VER=$(grep -m1 -oP '(?<=## v)\d+\.\d+\.\d+' docs/CHANGELOG.md || true)
+          if [ -z "$CHANGELOG_VER" ]; then
+            echo "FAIL: docs/CHANGELOG.md içinde ## vX.Y.Z formatında başlık bulunamadı."
+            FAILED=1
+          else
+            echo "CHANGELOG versiyon : v$CHANGELOG_VER"
+          fi
+
+          # ── 2. validate.mcfunction — {version:"vX.Y.Z"} ───────────────
+          VALIDATE_FILE=$(find data -path "*/ame_load/function/load/internal/validate.mcfunction" | head -1)
+          if [ -z "$VALIDATE_FILE" ]; then
+            echo "FAIL: validate.mcfunction bulunamadı."
+            FAILED=1
+            VALIDATE_VER=""
+          else
+            VALIDATE_VER=$(grep -oP '(?<=version:")[^"]+' "$VALIDATE_FILE" | head -1 | sed 's/^v//' || true)
+            if [ -z "$VALIDATE_VER" ]; then
+              echo "FAIL: $VALIDATE_FILE içinde version:\"vX.Y.Z\" bulunamadı."
+              FAILED=1
+            else
+              echo "validate.mcfunction: v$VALIDATE_VER"
+            fi
+          fi
+
+          # ── 3. version_set.mcfunction — scoreboard değerleri ──────────
+          VSET_FILE=$(find data -path "*/ame_load/function/load/internal/version_set.mcfunction" | head -1)
+          if [ -z "$VSET_FILE" ]; then
+            echo "FAIL: version_set.mcfunction bulunamadı."
+            FAILED=1
+            VSET_VER=""
+          else
+            MAJOR=$(grep -oP '(?<=#ame\.major ame\.pre_version )\d+' "$VSET_FILE" | head -1 || true)
+            MINOR=$(grep -oP '(?<=#ame\.minor ame\.pre_version )\d+' "$VSET_FILE" | head -1 || true)
+            PATCH=$(grep -oP '(?<=#ame\.patch ame\.pre_version )\d+' "$VSET_FILE" | head -1 || true)
+            PRE=$(grep -oP '(?<=#ame\.pre ame\.pre_version )\d+' "$VSET_FILE" | head -1 || true)
+
+            if [ -z "$MAJOR" ] || [ -z "$MINOR" ] || [ -z "$PATCH" ]; then
+              echo "FAIL: $VSET_FILE içinde #ame.major/minor/patch skorları okunamadı."
+              FAILED=1
+              VSET_VER=""
+            else
+              if [ "${PRE:-0}" -eq 0 ]; then
+                VSET_VER="$MAJOR.$MINOR.$PATCH"
+              else
+                VSET_VER="$MAJOR.$MINOR.$PATCH-pre$PRE"
+              fi
+              echo "version_set.mcfn  : v$VSET_VER"
+            fi
+          fi
+
+          echo ""
+
+          # ── Karşılaştırma ──────────────────────────────────────────────
+          if [ -n "$CHANGELOG_VER" ] && [ -n "$VALIDATE_VER" ]; then
+            if [ "$CHANGELOG_VER" != "$VALIDATE_VER" ]; then
+              echo "FAIL: CHANGELOG (v$CHANGELOG_VER) ≠ validate.mcfunction (v$VALIDATE_VER)"
+              FAILED=1
+            else
+              echo "OK: CHANGELOG = validate.mcfunction = v$CHANGELOG_VER"
+            fi
+          fi
+
+          if [ -n "$VALIDATE_VER" ] && [ -n "$VSET_VER" ]; then
+            if [ "$VALIDATE_VER" != "$VSET_VER" ]; then
+              echo "FAIL: validate.mcfunction (v$VALIDATE_VER) ≠ version_set.mcfunction (v$VSET_VER)"
+              FAILED=1
+            else
+              echo "OK: validate.mcfunction = version_set.mcfunction = v$VALIDATE_VER"
+            fi
+          fi
+
+          echo ""
+          if [ $FAILED -ne 0 ]; then
+            echo "FAILED: Versiyon tutarsızlığı tespit edildi."
+            echo "Tüm kaynaklar aynı versiyonu göstermeli:"
+            echo "  docs/CHANGELOG.md                              → ## vX.Y.Z"
+            echo "  data/.../validate.mcfunction                   → {version:\"vX.Y.Z\"}"
+            echo "  data/.../version_set.mcfunction                → #ame.major/minor/patch"
+            exit 1
+          fi
+
+          echo "PASSED: Tüm versiyon kaynakları tutarlı."
