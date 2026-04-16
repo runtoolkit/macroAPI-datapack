@@ -35,15 +35,15 @@
 
 # Create load-gate tracking objective
 # Safe to call even if objective already exists (add is idempotent)
-scoreboard objectives add ame.load dummy
+scoreboard objectives add macroAPI.load dummy
 
 # Reset any stale state from a previous incomplete gate cycle
-scoreboard players set #pending ame.load 0
-scoreboard players set #confirmed ame.load 0
-scoreboard players set #cancelled ame.load 0
+scoreboard players set #pending macroAPI.load 0
+scoreboard players set #confirmed macroAPI.load 0
+scoreboard players set #cancelled macroAPI.load 0
 
 # Open the gate window
-scoreboard players set #pending ame.load 1
+scoreboard players set #pending macroAPI.load 1
 
 # Broadcast via marker say — works at server start, no clickEvent, no players required
 say [macroAPI GATE] ========================================

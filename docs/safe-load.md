@@ -31,16 +31,16 @@ Instead it opens a confirmation gate:
 ```
 ame_load:_
   └─ summon marker → ame_load:load/confirm (runs as marker) → kill marker
-       ├─ sets #pending ame.load 1
+       ├─ sets #pending macroAPI.load 1
        ├─ broadcasts instructions via marker say  ← safe at server start
        └─ schedules ame_load:timeout (5 minutes)
 
 Admin: /function ame_load:load/yes
-  └─ removes ame.load objective → schedules ame_load:load/all (t+1)
+  └─ removes macroAPI.load objective → schedules ame_load:load/all (t+1)
        └─ full init pipeline runs
 
 Admin: /function ame_load:load/no
-  └─ clears gate, removes ame.load objective, engine stays uninitialized
+  └─ clears gate, removes macroAPI.load objective, engine stays uninitialized
 
 5 minutes with no response:
   └─ ame_load:timeout → ame_load:load/no (auto-cancel)
@@ -64,13 +64,13 @@ The marker `say` command writes directly to the server log (`[macroAPI] <macroAP
 
 ---
 
-## Scoreboard: `ame.load`
+## Scoreboard: `macroAPI.load`
 
 | Score | Values | Meaning |
 |---|---|---|
-| `#pending ame.load` | `1` | Gate is open, waiting for response |
-| `#confirmed ame.load` | `1` | `/yes` was called (transient) |
-| `#cancelled ame.load` | `1` | `/no` was called or timeout fired |
+| `#pending macroAPI.load` | `1` | Gate is open, waiting for response |
+| `#confirmed macroAPI.load` | `1` | `/yes` was called (transient) |
+| `#cancelled macroAPI.load` | `1` | `/no` was called or timeout fired |
 
 The objective is created in `ame_load:load/confirm` and removed by `ame_load:load/yes` or `ame_load:load/no` after handling. It does not exist outside the gate window.
 
@@ -133,12 +133,12 @@ These now store their parameters in `macro:engine pending_gate` and call `ame_lo
 
 Auto-cancel fires after **30 seconds** if no response.
 
-### Scoreboard: `ame.gate`
+### Scoreboard: `macroAPI.gate`
 
 | Score | Meaning |
 |---|---|
-| `#pending ame.gate == 1` | Gate open, waiting for response |
-| `#confirmed ame.gate == 1` | `/yes` was called (transient) |
+| `#pending macroAPI.gate == 1` | Gate open, waiting for response |
+| `#confirmed macroAPI.gate == 1` | `/yes` was called (transient) |
 
 The objective is removed after the gate closes.
 

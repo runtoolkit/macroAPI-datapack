@@ -28,7 +28,7 @@ data remove storage macro:engine _felist_state
 data remove storage macro:engine _felist_current
 data remove storage macro:engine _felist_i
 data remove storage macro:engine log_display
-scoreboard players reset #ame.log_count macro.tmp
+scoreboard players reset #macroAPI.log_count macro.tmp
 data remove storage macro:engine trigger_binds
 data remove storage macro:engine _tc_binds
 data remove storage macro:engine _tc_current
@@ -55,7 +55,7 @@ scoreboard objectives remove macro_action
 scoreboard objectives remove macro.tick_guard
 scoreboard objectives remove macro.dialog_load
 scoreboard objectives remove health
-scoreboard objectives remove ame.pre_version
+scoreboard objectives remove macroAPI.pre_version
 
 tag @a remove macro.dialog_opened
 tag @a remove macro.dialog_closed

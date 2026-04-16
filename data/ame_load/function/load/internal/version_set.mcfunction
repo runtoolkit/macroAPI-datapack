@@ -1,5 +1,5 @@
-scoreboard players set #ame.major ame.pre_version 4
-scoreboard players set #ame.minor ame.pre_version 0
-scoreboard players set #ame.patch ame.pre_version 2
-scoreboard players set #ame.pre ame.pre_version 0
-scoreboard players set #ame.ver_set ame.pre_version 1
+scoreboard players set #macroAPI.major macroAPI.pre_version 4
+scoreboard players set #macroAPI.minor macroAPI.pre_version 0
+scoreboard players set #macroAPI.patch macroAPI.pre_version 2
+scoreboard players set #macroAPI.pre macroAPI.pre_version 0
+scoreboard players set #macroAPI.ver_set macroAPI.pre_version 1

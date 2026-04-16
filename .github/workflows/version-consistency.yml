@@ -10,7 +10,7 @@ env:
 # Kontrol edilen kaynaklar:
 #   1. docs/CHANGELOG.md       → en üstteki "## vX.Y.Z" başlığı
 #   2. data/.../validate.mcfunction → {version:"vX.Y.Z"} storage değeri
-#   3. data/.../version_set.mcfunction → #ame.major/minor/patch/pre skorları
+#   3. data/.../version_set.mcfunction → #macroAPI.major/minor/patch/pre skorları
 #
 # pack.mcmeta'da versiyon alanı yoktur — kontrol dışıdır.
 # ─────────────────────────────────────────────────────────────────
@@ -78,7 +78,7 @@ jobs:
             PRE=$(grep -oP '(?<=#ame\.pre ame\.pre_version )\d+' "$VSET_FILE" | head -1 || true)
 
             if [ -z "$MAJOR" ] || [ -z "$MINOR" ] || [ -z "$PATCH" ]; then
-              echo "FAIL: $VSET_FILE içinde #ame.major/minor/patch skorları okunamadı."
+              echo "FAIL: $VSET_FILE içinde #macroAPI.major/minor/patch skorları okunamadı."
               FAILED=1
               VSET_VER=""
             else
@@ -118,7 +118,7 @@ jobs:
             echo "Tüm kaynaklar aynı versiyonu göstermeli:"
             echo "  docs/CHANGELOG.md                              → ## vX.Y.Z"
             echo "  data/.../validate.mcfunction                   → {version:\"vX.Y.Z\"}"
-            echo "  data/.../version_set.mcfunction                → #ame.major/minor/patch"
+            echo "  data/.../version_set.mcfunction                → #macroAPI.major/minor/patch"
             exit 1
           fi
 

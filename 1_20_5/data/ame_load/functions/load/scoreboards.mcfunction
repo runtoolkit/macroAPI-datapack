@@ -6,7 +6,7 @@ scoreboard objectives add macro_action trigger
 scoreboard objectives add macro.dialog_load dummy
 scoreboard objectives add macro.tick_guard dummy
 scoreboard objectives add health health {"text":"❤","color":"red"}
-scoreboard objectives add ame.pre_version dummy
+scoreboard objectives add macroAPI.pre_version dummy
 scoreboard objectives add macro.pid dummy
 
 # Wand module — carrot_on_a_stick right-click tracker

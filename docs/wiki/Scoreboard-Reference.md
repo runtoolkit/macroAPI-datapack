@@ -15,7 +15,7 @@
 | `macro.rightClick` | `minecraft.used:minecraft.carrot_on_a_stick` | Right-click detection for the wand system. |
 | `macro.tick_guard` | `dummy` | Per-entity tick-unique execution guard. |
 | `macro_action` | `trigger` | Legacy trigger system (value→function dispatch). |
-| `ame.pre_version` | `dummy` | Engine version scoreboard (`major`, `minor`, `patch`, `pre`). |
+| `macroAPI.pre_version` | `dummy` | Engine version scoreboard (`major`, `minor`, `patch`, `pre`). |
 
 ---
 
@@ -31,17 +31,17 @@
 
 ---
 
-## Fake Players (on `ame.pre_version`)
+## Fake Players (on `macroAPI.pre_version`)
 
 | Fake player | Value | Description |
 |-------------|-------|-------------|
-| `#ame.major` | e.g. `4` | Major version number |
-| `#ame.minor` | e.g. `0` | Minor version number |
-| `#ame.patch` | e.g. `0` | Patch version number |
-| `#ame.pre` | `0` = release | Pre-release build index |
-| `#ame.ver_set` | `1` after load | Sentinel — previous AME session initialized |
-| `#ame.mismatch` | `1` on mismatch | Version mismatch detected during load |
-| `#ame.log_count` | 0 – 30 | Current log buffer entry count |
+| `#macroAPI.major` | e.g. `4` | Major version number |
+| `#macroAPI.minor` | e.g. `0` | Minor version number |
+| `#macroAPI.patch` | e.g. `0` | Patch version number |
+| `#macroAPI.pre` | `0` = release | Pre-release build index |
+| `#macroAPI.ver_set` | `1` after load | Sentinel — previous AME session initialized |
+| `#macroAPI.mismatch` | `1` on mismatch | Version mismatch detected during load |
+| `#macroAPI.log_count` | 0 – 30 | Current log buffer entry count |
 
 ---
 

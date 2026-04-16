@@ -14,14 +14,14 @@
 # an 'execute if data' dispatch line here.
 
 # Guard: no gate open
-execute unless score #pending ame.gate matches 1 run return 0
+execute unless score #pending macroAPI.gate matches 1 run return 0
 
 # Guard: already confirmed (double-call protection)
-execute if score #confirmed ame.gate matches 1 run return 0
+execute if score #confirmed macroAPI.gate matches 1 run return 0
 
 # Mark confirmed, close window
-scoreboard players set #confirmed ame.gate 1
-scoreboard players set #pending ame.gate 0
+scoreboard players set #confirmed macroAPI.gate 1
+scoreboard players set #pending macroAPI.gate 0
 
 # Cancel the 30-second timeout
 schedule clear ame_load:gate/timeout
@@ -46,6 +46,6 @@ execute if data storage macro:engine pending_gate{type:"disable"} run function a
 
 # --- CLEANUP ---
 data remove storage macro:engine pending_gate
-scoreboard players reset #pending ame.gate
-scoreboard players reset #confirmed ame.gate
-scoreboard objectives remove ame.gate
+scoreboard players reset #pending macroAPI.gate
+scoreboard players reset #confirmed macroAPI.gate
+scoreboard objectives remove macroAPI.gate

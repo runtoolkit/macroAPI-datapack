@@ -45,7 +45,7 @@
 
 Bunun yerine bir **onay kapısı** açıyor:
 
-- `ame_load:load/confirm` — `#pending ame.load` flag'ini ayarlar, marker entity aracılığıyla talimatları yayınlar, 5 dakikalık timeout'u schedule'lar
+- `ame_load:load/confirm` — `#pending macroAPI.load` flag'ini ayarlar, marker entity aracılığıyla talimatları yayınlar, 5 dakikalık timeout'u schedule'lar
 - `ame_load:load/yes` — admin onayı, tam init pipeline'ını çalıştırır
 - `ame_load:load/no` — iptal, `macro:engine` storage'a dokunulmaz
 - `ame_load:timeout` — 5 dakika yanıt gelmezse otomatik iptal (`load/no`'ya delegate)
@@ -512,7 +512,7 @@ Satır 11'de `$data modify storage macro:engine _wand_unbinds set from storage m
 ### 🐛 Bug Fixes
 
 #### `ame_load:load/internal/version_set` — çift boşluk parse hatası
-`scoreboard players set #ame.pre  ame.pre_version` satırındaki çift boşluk Minecraft komut ayrıştırıcısında `Tam sayı bekleniyor` hatasına yol açıyordu. Tek boşluğa indirildi.
+`scoreboard players set #macroAPI.pre  macroAPI.pre_version` satırındaki çift boşluk Minecraft komut ayrıştırıcısında `Tam sayı bekleniyor` hatasına yol açıyordu. Tek boşluğa indirildi.
 
 #### `cmd/data_remove_block`, `cmd/data_remove_entity`, `cmd/data_remove_storage` — geçersiz macro satırı
 Son `$tellraw` satırlarında `$(...)` değişkeni bulunmuyordu; Minecraft `$` ile başlayan her satırın en az bir `$(var)` içermesini zorunlu kılıyor, `No variables in macro` hatası üretiyordu. `$` kaldırıldı ve debug çıktısı ilgili argümanları (`$(x) $(y) $(z) → $(path)` vb.) gösterecek şekilde iyileştirildi.
@@ -633,10 +633,10 @@ Dahili akış: `load_check` → `perm_check` → `timer_check`. Herhangi biri ba
 
 `/function macro:version` komutuyla çağıran oyuncuya AME sürüm bilgisini gösteren yeni fonksiyon.
 
-- Tüm sürüm sayıları `ame.pre_version` scoreboard'undan dinamik okunur — hardcode yok
-- `-preN` suffix'i `#ame.pre >= 1` ise gösterilir, `0` ise gizlenir (release build'ler için)
+- Tüm sürüm sayıları `macroAPI.pre_version` scoreboard'undan dinamik okunur — hardcode yok
+- `-preN` suffix'i `#macroAPI.pre >= 1` ise gösterilir, `0` ise gizlenir (release build'ler için)
 - Author / Source satırları `click_event` ile tıklanabilir link içerir (1.21.5+ overlay'lerinde)
-- `#ame.ver_set` skoru kontrol edilerek yüklenme durumu (`● loaded` / `✖ not initialized`) gösterilir
+- `#macroAPI.ver_set` skoru kontrol edilerek yüklenme durumu (`● loaded` / `✖ not initialized`) gösterilir
 
 Dosyalar:
 | Katman | Dosya | click formatı |
@@ -651,13 +651,13 @@ Dosyalar:
 ### 🐛 Bug Fixes
 
 #### `all.mcfunction`, `finalize.mcfunction` — hardcode versiyon string
-`"[Macro Engine v2.0.3]"` / `"v2.0.3"` hardcode tellraw metinleri `#ame.major/minor/patch` score-based yapıya dönüştürüldü. `#ame.pre >= 1` ise `-preN` suffix ekleniyor.
+`"[Macro Engine v2.0.3]"` / `"v2.0.3"` hardcode tellraw metinleri `#macroAPI.major/minor/patch` score-based yapıya dönüştürüldü. `#macroAPI.pre >= 1` ise `-preN` suffix ekleniyor.
 
 #### `version_warn.mcfunction` (base) — yanlış `pre` numarası
 Debug tellraw `(expected: 2 0 3 pre=3)` yazıyordu. `pre=4` olarak düzeltildi.
 
-#### `validate.mcfunction` — `#ame.pre matches 0` mismatch
-`#ame.pre` kontrol satırı `matches 0` yazıyordu; pre-release build'lerde her `/reload`'da version mismatch tetiklenip yükleme iptal ediliyordu. `matches 4` olarak düzeltildi.
+#### `validate.mcfunction` — `#macroAPI.pre matches 0` mismatch
+`#macroAPI.pre` kontrol satırı `matches 0` yazıyordu; pre-release build'lerde her `/reload`'da version mismatch tetiklenip yükleme iptal ediliyordu. `matches 4` olarak düzeltildi.
 
 #### `compat_1_21_4/version.mcfunction` — `click_event` 1.21.4'te desteklenmiyor
 Author / Source satırlarına yanlışlıkla `click_event` yazılmıştı (`click_event` 1.21.5+ only). Link kaldırıldı, düz text olarak bırakıldı.
@@ -909,7 +909,7 @@ Previous code had `abs()` step that mapped both `x` ve `-x` values to the same r
 `$execute as @a[scores={$(name)=1..}]` line only runs on players whose score is already `1` or above; players with no score set `scoreboard players enable` couldn't get. `$execute as @a run scoreboard players enable @s $(name)` line added — all players get enabled every tick.
 
 #### Version references updated
-`load/all`, `finalize`, `validate`, `version_set`, `version_warn` fwiths all `v2.0.0` / `V2.0.0` references `v2.0.1` updated to; `#ame.patch` scoreboard value `0` → `1` corrected to.
+`load/all`, `finalize`, `validate`, `version_set`, `version_warn` fwiths all `v2.0.0` / `V2.0.0` references `v2.0.1` updated to; `#macroAPI.patch` scoreboard value `0` → `1` corrected to.
 
 ## v2.0.0 — 2026-03-10
 
@@ -1039,17 +1039,17 @@ Yeni tick dosyaları: `tick/time_systems`, `tick/queue_systems`, `tick/player_sy
 ### 🐛 Bug Fixes
 
 #### `$v_pre` / `$v_*` — 1.21.1 macro parser çakışması
-`ame_load:load/internal/version_set` ve `validate` dosyalarındaki `$v_major`, `$v_minor`, `$v_patch`, `$v_pre`, `$ame_ver_set`, `$ver_mismatch` fake player isimleri 1.21.1'de (pack_format 48–57) `$` ön ekinin macro değişkeni olarak ayrıştırılması nedeniyle `Tam sayı bekleniyor` / `Command için geçersiz değişken` hatası üretiyordu. Tüm isimler `#ame.*` formatına taşındı:
+`ame_load:load/internal/version_set` ve `validate` dosyalarındaki `$v_major`, `$v_minor`, `$v_patch`, `$v_pre`, `$ame_ver_set`, `$ver_mismatch` fake player isimleri 1.21.1'de (pack_format 48–57) `$` ön ekinin macro değişkeni olarak ayrıştırılması nedeniyle `Tam sayı bekleniyor` / `Command için geçersiz değişken` hatası üretiyordu. Tüm isimler `#macroAPI.*` formatına taşındı:
 
 | Eski | Yeni |
 |---|---|
-| `$v_major` | `#ame.major` |
-| `$v_minor` | `#ame.minor` |
-| `$v_patch` | `#ame.patch` |
-| `$v_pre` | `#ame.pre` |
-| `$ame_ver_set` | `#ame.ver_set` |
-| `$ver_mismatch` | `#ame.mismatch` |
-| `$log_count` | `#ame.log_count` |
+| `$v_major` | `#macroAPI.major` |
+| `$v_minor` | `#macroAPI.minor` |
+| `$v_patch` | `#macroAPI.patch` |
+| `$v_pre` | `#macroAPI.pre` |
+| `$ame_ver_set` | `#macroAPI.ver_set` |
+| `$ver_mismatch` | `#macroAPI.mismatch` |
+| `$log_count` | `#macroAPI.log_count` |
 
 Etkwithnen dosyalar: `version_set`, `validate`, `version_warn`, `finalize`, `log/add`, `log/clear`, `load/internal/cleanup`.
 
@@ -1124,7 +1124,7 @@ Base namespace `dialog/close.mcfunction`'da `return run tellraw ...` satırında
 
 ---
 
-### ✨ New: Version Scoreboard — `ame.pre_version`
+### ✨ New: Version Scoreboard — `macroAPI.pre_version`
 
 Load sistemine entegre edilmiş versiyon izleme:
 
@@ -1135,7 +1135,7 @@ Load sistemine entegre edilmiş versiyon izleme:
 | `$v_patch` | `5` | Patch versiyon |
 | `$ame_ver_set` | `1` | Sentinel — önceki AME oturumu yazıldı |
 
-Başarılı load'dan sonra `ame_load:load/internal/version_set` bu skorları yazar. Sonraki `validate`'te `$ame_ver_set = 1` ise `$v_major/minor/patch` beklenen değerlerle karşılaştırılır; uyuşmazsa load iptal edilir. İlk on load (`$ame_ver_set` yok) check atlanır — false positive olmaz. `ame.pre_version` objective `ame_load:load/internal/cleanup`'ta da temizlenir.
+Başarılı load'dan sonra `ame_load:load/internal/version_set` bu skorları yazar. Sonraki `validate`'te `$ame_ver_set = 1` ise `$v_major/minor/patch` beklenen değerlerle karşılaştırılır; uyuşmazsa load iptal edilir. İlk on load (`$ame_ver_set` yok) check atlanır — false positive olmaz. `macroAPI.pre_version` objective `ame_load:load/internal/cleanup`'ta da temizlenir.
 
 ### ✨ New: Modüler Load İç Dosyaları
 
