@@ -27,24 +27,24 @@ jobs:
             const REVIEWERS_BY_PATH = [
               {
                 pattern: /^data\/macro\/function\//,
-                reviewers: ['tickwarden'],
+                reviewers: ['runtoolkit'],
               },
               {
                 pattern: /^data\/macro\/tags\//,
-                reviewers: ['tickwarden'],
+                reviewers: ['runtoolkit'],
               },
               {
                 pattern: /^data\/minecraft\//,
-                reviewers: ['tickwarden'],
+                reviewers: ['runtoolkit'],
               },
               {
                 pattern: /^pack\.mcmeta$/,
-                reviewers: ['tickwarden'],
+                reviewers: ['runtoolkit'],
               },
             ];
 
             // Fallback: herhangi bir eşleşme yoksa
-            const FALLBACK_REVIEWERS = ['tickwarden'];
+            const FALLBACK_REVIEWERS = ['runtoolkit'];
 
             const { data: files } = await github.rest.pulls.listFiles({
               owner: context.repo.owner,

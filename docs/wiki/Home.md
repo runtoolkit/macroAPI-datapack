@@ -2,7 +2,7 @@
 
 **Minecraft Java Edition 1.20.3 – 1.21.6+ | Multiplayer-Safe | Pure Datapack**
 
-> Current version: **v4.0.1** · Repository: [tickwarden/macroAPI-datapack](https://github.com/tickwarden/macroAPI-datapack)
+> Current version: **v4.0.1** · Repository: [runtoolkit/macroAPI-datapack](https://github.com/runtoolkit/macroAPI-datapack)
 
 ---
 
@@ -40,7 +40,7 @@
 | [Predicate Reference](Predicate-Reference) | All built-in predicates |
 | [Scoreboard Reference](Scoreboard-Reference) | All objectives and fake players |
 | [Changelog](Changelog) | Full version history |
-| [Migration Guide](Migration-Guide) | Migrating from `ToolkitMC/macroAPI` |
+| [Migration Guide](Migration-Guide) | Migrating from `runtoolkit/macroAPI` |
 
 ---
 

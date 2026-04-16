@@ -4,7 +4,7 @@
 
 > Current version: **v4.0.2**
 
-> 📦 **Moved from `ToolkitMC/macroAPI`** — This is the new official repository. The old repo is archived (read-only). Update your remotes and bookmarks. See the [Migration Guide](docs/wiki/Migration-Guide.md) for details.
+> 📦 **Moved from `runtoolkit/macroAPI`** — This is the new official repository. The old repo is archived (read-only). Update your remotes and bookmarks. See the [Migration Guide](docs/wiki/Migration-Guide.md) for details.
 
 > 📚 **Wiki** — Full API reference, examples, and guides: [docs/wiki/](docs/wiki/) *(GitHub Wiki coming soon)*
 
@@ -32,7 +32,7 @@ The code remains available for reference and educational purposes.
 
 > ⚠️ **This is the ONLY official source.**
 > Files downloaded from other sites or forks may have been modified.
-> Only download from the [Releases](https://github.com/tickwarden/macroAPI-datapack/releases) page.
+> Only download from the [Releases](https://github.com/runtoolkit/macroAPI-datapack/releases) page.
 
 **SHA256:** *See the release page for the correct hash of your downloaded version.*
 
@@ -140,10 +140,10 @@ Code and examples are split into separate documents by module:
 | Module | Document |
 |--------|----------|
 | 🕐 Cooldown | [cooldown.md](docs/cooldown.md) |
-| 📡 Event | [event.md](https://github.com/tickwarden/macroAPI-datapack/blob/main/docs/event.md) |
-| 🔢 Math | [math.md](https://github.com/tickwarden/macroAPI-datapack/blob/main/docs/math.md) |
-| 👥 Team & ⚙️ Config | [team-config.md](https://github.com/tickwarden/macroAPI-datapack/blob/main/docs/team-config.md) |
-| 🔁 Lib · 👤 Player · ⚙️ Commands · 💬 Messaging · Dialog · Other | [lib-player-cmd-string.md](https://github.com/tickwarden/macroAPI-datapack/blob/main/docs/lib-player-cmd-string.md) |
+| 📡 Event | [event.md](https://github.com/runtoolkit/macroAPI-datapack/blob/main/docs/event.md) |
+| 🔢 Math | [math.md](https://github.com/runtoolkit/macroAPI-datapack/blob/main/docs/math.md) |
+| 👥 Team & ⚙️ Config | [team-config.md](https://github.com/runtoolkit/macroAPI-datapack/blob/main/docs/team-config.md) |
+| 🔁 Lib · 👤 Player · ⚙️ Commands · 💬 Messaging · Dialog · Other | [lib-player-cmd-string.md](https://github.com/runtoolkit/macroAPI-datapack/blob/main/docs/lib-player-cmd-string.md) |
 | 🔤 String (StringLib) | see below |
 
 ### 🔤 `macro:lib/string/*`
@@ -207,12 +207,12 @@ New modules: `math/abs`, `math/clamp`, `team/*`, `config/*`, `lib/input_push`, `
 
 ## 💬 Community & Support
 
-[![Discussions](https://img.shields.io/github/discussions/tickwarden/macroAPI-datapack?style=for-the-badge&logo=github&color=blue)](https://github.com/tickwarden/macroAPI-datapack/discussions)
+[![Discussions](https://img.shields.io/github/discussions/runtoolkit/macroAPI-datapack?style=for-the-badge&logo=github&color=blue)](https://github.com/runtoolkit/macroAPI-datapack/discussions)
 
-[GitHub Discussions](https://github.com/tickwarden/macroAPI-datapack/discussions) — For questions, suggestions, and bug reports.
+[GitHub Discussions](https://github.com/runtoolkit/macroAPI-datapack/discussions) — For questions, suggestions, and bug reports.
 
 
-[![Issues](https://img.shields.io/github/issues/tickwarden/macroAPI-datapack?style=for-the-badge)](https://github.com/tickwarden/macroAPI-datapack/issues) - GitHub Issues — Your hub for questions, suggestions, and bug reports.
+[![Issues](https://img.shields.io/github/issues/runtoolkit/macroAPI-datapack?style=for-the-badge)](https://github.com/runtoolkit/macroAPI-datapack/issues) - GitHub Issues — Your hub for questions, suggestions, and bug reports.
 ---
 
 *macroAPI v4.0.1 | MC Java 1.20.3–1.21.6+ | Language: mcfunction*

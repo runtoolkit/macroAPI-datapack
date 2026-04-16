@@ -18,7 +18,7 @@
 
 ### 1. Download
 
-Download the latest release ZIP from the [Releases page](https://github.com/tickwarden/macroAPI-datapack/releases).
+Download the latest release ZIP from the [Releases page](https://github.com/runtoolkit/macroAPI-datapack/releases).
 
 > ⚠️ **Only download from the official Releases page.** Third-party mirrors may contain modified files.
 

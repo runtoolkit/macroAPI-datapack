@@ -1,6 +1,6 @@
 # 🔁 Library · 👤 Player · ⚙️ Commands · 💬 Messaging & Dialog System
 
-← [Back to README](https://github.com/tickwarden/macroAPI-datapack/blob/main/README.md)
+← [Back to README](https://github.com/runtoolkit/macroAPI-datapack/blob/main/README.md)
 
 ---
 
@@ -162,4 +162,4 @@ function macro:dialog/close
 
 **Pack Version**: v4.0.1  
 **Compatible with**: Minecraft 1.20.3 → 1.21.x → 26.x+  
-**Author**: tickwarden (ToolkitMC)
+**Author**: runtoolkit (runtoolkit)

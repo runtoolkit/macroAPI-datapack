@@ -2,7 +2,7 @@
 
 ← [Home](Home)
 
-Full detailed changelog: [docs/CHANGELOG.md](https://github.com/tickwarden/macroAPI-datapack/blob/main/docs/CHANGELOG.md)
+Full detailed changelog: [docs/CHANGELOG.md](https://github.com/runtoolkit/macroAPI-datapack/blob/main/docs/CHANGELOG.md)
 
 ---
 

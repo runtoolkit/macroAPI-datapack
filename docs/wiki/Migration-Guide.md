@@ -4,18 +4,18 @@
 
 ---
 
-## Migrating from `ToolkitMC/macroAPI`
+## Migrating from `runtoolkit/macroAPI`
 
-The project has moved from the **ToolkitMC organization** to the **tickwarden personal account**.
+The project has moved from the **runtoolkit organization** to the **runtoolkit personal account**.
 
 | | Old | New |
 |---|---|---|
-| **Repository** | `ToolkitMC/macroAPI` | `tickwarden/macroAPI-datapack` |
-| **Releases** | `github.com/ToolkitMC/macroAPI/releases` | `github.com/tickwarden/macroAPI-datapack/releases` |
-| **Issues** | `ToolkitMC/macroAPI/issues` | `tickwarden/macroAPI-datapack/issues` |
-| **Discussions** | `ToolkitMC/macroAPI/discussions` | `tickwarden/macroAPI-datapack/discussions` |
+| **Repository** | `runtoolkit/macroAPI` | `runtoolkit/macroAPI-datapack` |
+| **Releases** | `github.com/runtoolkit/macroAPI/releases` | `github.com/runtoolkit/macroAPI-datapack/releases` |
+| **Issues** | `runtoolkit/macroAPI/issues` | `runtoolkit/macroAPI-datapack/issues` |
+| **Discussions** | `runtoolkit/macroAPI/discussions` | `runtoolkit/macroAPI-datapack/discussions` |
 
-> The old repository (`ToolkitMC/macroAPI`) is now **archived** (read-only). No further updates will be published there.
+> The old repository (`runtoolkit/macroAPI`) is now **archived** (read-only). No further updates will be published there.
 
 ### Action required
 
@@ -23,7 +23,7 @@ If you have the old repository bookmarked or cloned:
 
 ```bash
 # Update your local clone's remote
-git remote set-url origin https://github.com/tickwarden/macroAPI-datapack.git
+git remote set-url origin https://github.com/runtoolkit/macroAPI-datapack.git
 ```
 
 If you depend on this project in another datapack via LanternLoad, no namespace changes are needed — the `macro:` namespace and `macroAPI load.status` scoreboard are unchanged.
