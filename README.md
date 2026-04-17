@@ -2,7 +2,7 @@
 **Minecraft Java Edition 1.20.3–1.21.6+ | Multiplayer-Safe | Pure Datapack**
 
 
-> Current version: **v4.0.2**
+> Current version: **v1.0.0**
 
 > 📦 **Moved from `runtoolkit/macroAPI`** — This is the new official repository. The old repo is archived (read-only). Update your remotes and bookmarks. See the [Migration Guide](docs/wiki/Migration-Guide.md) for details.
 
