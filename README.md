@@ -26,7 +26,7 @@
 > Files downloaded from other sites or forks may have been modified.
 > Only download from the [Releases](https://github.com/runtoolkit/macroAPI-datapack/releases) page.
 
-**SHA256:** *See the release page for the correct hash of your downloaded version.*
+**SHA256:** *17bc5c68d75f113d1506aba87f1def15dce6dfc4b388905aaa59b37e789282f6*
 
 ```bash
 # Windows
