@@ -45,7 +45,7 @@ body:
       label: macroAPI Version
       description: Which version of macroAPI are you using?
       options:
-        - "v2.0.1 (latest)"
+        - "v1.0.0 (latest)"
         - "v2.0.0"
         - "v1.x"
         - "I don't know"
