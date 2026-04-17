@@ -10,7 +10,7 @@
 #   function ame_load:gate/request
 #
 # This function then:
-#   1. Opens the macroAPI.gate scoreboard window
+#   1. Opens the #macroAPI.gate scoreboard window
 #   2. Broadcasts confirmation instructions via marker say
 #   3. Schedules a 30-second auto-cancel
 #
@@ -21,13 +21,13 @@
 # prevent multiple dangerous commands from racing in multiplayer.
 
 # Drop silently if a gate is already open (multiplayer safety)
-scoreboard objectives add macroAPI.gate dummy
-execute if score #pending macroAPI.gate matches 1 run return 0
+scoreboard objectives add #macroAPI.gate dummy
+execute if score #pending #macroAPI.gate matches 1 run return 0
 
 # Open the gate window
-scoreboard players set #pending macroAPI.gate 0
-scoreboard players set #confirmed macroAPI.gate 0
-scoreboard players set #pending macroAPI.gate 1
+scoreboard players set #pending #macroAPI.gate 0
+scoreboard players set #confirmed #macroAPI.gate 0
+scoreboard players set #pending #macroAPI.gate 1
 
 # Broadcast via marker (server-startup safe, no player context needed)
 summon minecraft:marker ~ ~ ~ {Tags:["macro.gate_req"],CustomName:'{"text":"macroAPI"}'}

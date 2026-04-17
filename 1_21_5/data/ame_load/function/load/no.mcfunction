@@ -13,12 +13,12 @@
 # (calling ame_load:_ directly re-runs stage0 without a full /reload)
 
 # Guard: nothing pending
-execute unless score #pending macroAPI.load matches 1 run return 0
+execute unless score #pending #macroAPI.load matches 1 run return 0
 
 # Close the gate window
-scoreboard players set #cancelled macroAPI.load 1
-scoreboard players set #pending macroAPI.load 0
-scoreboard players set #confirmed macroAPI.load 0
+scoreboard players set #cancelled #macroAPI.load 1
+scoreboard players set #pending #macroAPI.load 0
+scoreboard players set #confirmed #macroAPI.load 0
 
 # If admin called /no explicitly, cancel the still-pending timeout
 schedule clear ame_load:timeout
@@ -33,7 +33,7 @@ execute as @e[type=minecraft:marker,tag=macro.gate_no,limit=1] run say [macroAPI
 execute as @e[type=minecraft:marker,tag=macro.gate_no,limit=1] run kill @s
 
 # Tear down gate objective
-scoreboard players reset #pending macroAPI.load
-scoreboard players reset #cancelled macroAPI.load
-scoreboard players reset #confirmed macroAPI.load
-scoreboard objectives remove macroAPI.load
+scoreboard players reset #pending #macroAPI.load
+scoreboard players reset #cancelled #macroAPI.load
+scoreboard players reset #confirmed #macroAPI.load
+scoreboard objectives remove #macroAPI.load

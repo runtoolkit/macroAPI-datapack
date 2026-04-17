@@ -7,11 +7,11 @@
 # ALSO CALLED BY: ame_load:gate/timeout (auto-cancel after 30 seconds)
 
 # Guard: nothing pending
-execute unless score #pending macroAPI.gate matches 1 run return 0
+execute unless score #pending #macroAPI.gate matches 1 run return 0
 
 # Close the gate window
-scoreboard players set #pending macroAPI.gate 0
-scoreboard players set #confirmed macroAPI.gate 0
+scoreboard players set #pending #macroAPI.gate 0
+scoreboard players set #confirmed #macroAPI.gate 0
 
 # Cancel the still-pending timeout if admin called /no explicitly
 schedule clear ame_load:gate/timeout
@@ -23,6 +23,6 @@ execute as @e[type=minecraft:marker,tag=macro.gate_no,limit=1] run kill @s
 
 # Discard pending context
 data remove storage macro:engine pending_gate
-scoreboard players reset #pending macroAPI.gate
-scoreboard players reset #confirmed macroAPI.gate
-scoreboard objectives remove macroAPI.gate
+scoreboard players reset #pending #macroAPI.gate
+scoreboard players reset #confirmed #macroAPI.gate
+scoreboard objectives remove #macroAPI.gate

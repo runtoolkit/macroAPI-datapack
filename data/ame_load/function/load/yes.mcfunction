@@ -3,7 +3,7 @@
 #
 # GUARDS
 # ------
-#   - Gate must be open (#pending macroAPI.load == 1)
+#   - Gate must be open (#pending #macroAPI.load == 1)
 #   - Already-confirmed calls are no-ops (idempotent)
 #   - If called with no gate pending, silently returns 0
 #
@@ -11,35 +11,35 @@
 # ------------
 #   1. Mark confirmed, close the pending window
 #   2. Cancel the 5-minute timeout schedule
-#   3. Tear down the macroAPI.load objective (not needed after this point)
+#   3. Tear down the #macroAPI.load objective (not needed after this point)
 #   4. Schedule ame_load:load/all at t+1 (clean tick boundary)
 #
 # The 1-tick delay lets the scoreboard objective removal settle before
 # ame_load:load/scoreboards runs and recreates its own objectives.
 
 # Guard: no gate open
-execute unless score #pending macroAPI.load matches 1 run return 0
+execute unless score #pending #macroAPI.load matches 1 run return 0
 
 # Guard: already confirmed (double-call protection)
-execute if score #confirmed macroAPI.load matches 1 run return 0
+execute if score #confirmed #macroAPI.load matches 1 run return 0
 
 # Mark confirmed — close window
-scoreboard players set #confirmed macroAPI.load 1
-scoreboard players set #pending macroAPI.load 0
+scoreboard players set #confirmed #macroAPI.load 1
+scoreboard players set #pending #macroAPI.load 0
 
 # Cancel auto-cancel timeout
 schedule clear ame_load:timeout
 
 # Announce via marker (safe on all MC versions, no player context needed)
 summon minecraft:marker ~ ~ ~ {Tags:["macro.gate_yes"],CustomName:'{"text":"macroAPI"}'}
-execute as @e[type=minecraft:marker,tag=macro.gate_yes,limit=1] run say [macroAPI GATE] Load CONFIRMED by operator. Initializing macroAPI...
+execute as @e[type=minecraft:marker,tag=macro.gate_yes,limit=1] run say [macroAPI GATE] Load CONFIRMED by operator. Initializing #macroAPI...
 execute as @e[type=minecraft:marker,tag=macro.gate_yes,limit=1] run kill @s
 
 # Tear down gate scoreboard before load pipeline touches scoreboards
-scoreboard players reset #pending macroAPI.load
-scoreboard players reset #confirmed macroAPI.load
-scoreboard players reset #cancelled macroAPI.load
-scoreboard objectives remove macroAPI.load
+scoreboard players reset #pending #macroAPI.load
+scoreboard players reset #confirmed #macroAPI.load
+scoreboard players reset #cancelled #macroAPI.load
+scoreboard objectives remove #macroAPI.load
 
 # Fire the actual load pipeline
 # 1-tick delay gives scoreboard removal a clean tick boundary before

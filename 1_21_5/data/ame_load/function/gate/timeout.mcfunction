@@ -9,4 +9,4 @@ summon minecraft:marker ~ ~ ~ {Tags:["macro.gtimeout"],CustomName:{"text":"macro
 execute as @e[type=minecraft:marker,tag=macro.gtimeout,limit=1] run say [macroAPI GATE] Dangerous command timeout (30s) — auto-cancelling.
 execute as @e[type=minecraft:marker,tag=macro.gtimeout,limit=1] run kill @s
 
-execute if score #pending macroAPI.gate matches 1 run function ame_load:gate/no
+execute if score #pending #macroAPI.gate matches 1 run function ame_load:gate/no

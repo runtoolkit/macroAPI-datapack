@@ -10,7 +10,7 @@
 
 # Audit log — does NOT execute the actual ban-ip command
 $tellraw @a[tag=macro.admin] ["",{"text":"[macroAPI] ","color":"#00AAAA","bold":true},{"text":"⚠ BLOCKED: ban_ip is DISABLED. Requested target: ","color":"red"},{"text":"$(player)","color":"white"},{"text":" reason: ","color":"gray"},{"text":"$(reason)","color":"yellow"}]
-$tellraw @a[tag=macro.debug] ["",{"text":"[macroAPI] ","color":"#00AAAA","bold":true},{"text":"gate/exec/ban_ip BLOCKED — command disabled in macroAPI. target=","color":"red"},{"text":"$(player)","color":"white"}]
+$tellraw @a[tag=macro.debug] ["",{"text":"[macroAPI] ","color":"#00AAAA","bold":true},{"text":"gate/exec/ban_ip BLOCKED — command disabled in #macroAPI. target=","color":"red"},{"text":"$(player)","color":"white"}]
 
 # Do NOT execute ban-ip. Return failure to indicate gate action was blocked.
 return 0

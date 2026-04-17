@@ -13,4 +13,4 @@ execute as @e[type=minecraft:marker,tag=macro.timeout,limit=1] run say [macroAPI
 execute as @e[type=minecraft:marker,tag=macro.timeout,limit=1] run kill @s
 
 # Delegate to load/no (idempotent — no-op if gate already closed)
-execute if score #pending macroAPI.load matches 1 run function ame_load:load/no
+execute if score #pending #macroAPI.load matches 1 run function ame_load:load/no
