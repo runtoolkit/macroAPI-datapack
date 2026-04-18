@@ -13,7 +13,144 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ---
+## ⚠️ Known Issue — Archived
+
+This build produces load errors on Minecraft 26.1.x due to scoreboard objective
+names prefixed with `#` (e.g. `#macroAPI_pre_version`, `#macroAPI_gate`) being
+rejected by the command parser in this version. These are legitimate parse errors,
+not malicious behavior.
+
+The `gate/exec/ban.mcfunction` and `gate/exec/ban_ip.mcfunction` files explicitly
+**block** those commands and return 0 — they exist as a security audit layer, not
+as attack vectors.
+
+Root cause: objective name validation tightened in 26.1.x.  
+Fix required: rename `#`-prefixed objective names throughout `ame_load/`.
+---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
